@@ -13,6 +13,7 @@ from torch.nn.utils import clip_grad_value_
 torch.backends.cudnn.benchmark = True
 torch.multiprocessing.set_start_method('spawn', force=True)
 
+import sys
 import os
 import argparse
 from itertools import chain
@@ -26,6 +27,8 @@ from wavenet_models import cross_entropy_loss, Encoder, ZDiscriminator
 from utils import create_output_dir, LossMeter, wrap
 
 parser = argparse.ArgumentParser(description='PyTorch Code for A Universal Music Translation Network')
+
+parser.add_argument('--gpu', type=str, required=True, help='Specify which GPUs to use separated by a comma. Ex: 2,3')
 # Env options:
 parser.add_argument('--epochs', type=int, default=10000, metavar='N',
                     help='number of epochs to train (default: 92)')
@@ -374,6 +377,8 @@ class Trainer:
 
 def main():
     args = parser.parse_args()
+    os.environ['CUDA_VISIBLE_DEVICES']=args.gpu
+    torch.cuda.empty_cache()
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
