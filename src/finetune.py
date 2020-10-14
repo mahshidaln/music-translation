@@ -31,6 +31,8 @@ parser.add_argument('--gpu', type=str, required=True, help='Specify which GPUs t
 # Env options:
 parser.add_argument('--epochs', type=int, default=60, metavar='N',
                     help='number of epochs to train (default: 92)')
+parser.add_argument('--seed', type=int, default=1, metavar='S',
+                    help='random seed (default: 1)')
 parser.add_argument('--expName', type=str, required=True,
                     help='Experiment name')
 parser.add_argument('--data',
@@ -93,6 +95,9 @@ class Finetuner:
         self.eval_total = LossMeter('eval total')
 
         self.start_epoch = 0
+
+        #torch.manual_seed(args.seed)
+        #torch.cuda.manual_seed(args.seed)
 
         #get the pretrained model checkpoints    
         checkpoint = args.checkpoint.parent.glob(args.checkpoint.name + '_*.pth')
