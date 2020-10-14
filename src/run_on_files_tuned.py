@@ -45,6 +45,7 @@ def parse_args():
                         help='Size of splits')
     parser.add_argument('--output-next-to-orig', action='store_true')
     parser.add_argument('--skip-filter', action='store_true')
+    parser.add_argument('--update', type=int)
     parser.add_argument('--py', action='store_true', help='Use python generator')
 
     return parser.parse_args()
@@ -64,7 +65,6 @@ def main(args):
     assert len(checkpoints) >= 1, "No checkpoints found."
 
     model_args = torch.load(args.model.parent / 'args.pth')[0]
-    print(model_args)
     encoder = wavenet_models.Encoder(model_args)
     encoder.load_state_dict(torch.load(checkpoints[0])['encoder_state'])
     encoder.eval()
@@ -107,7 +107,6 @@ def main(args):
             if data.shape[-1] % args.rate != 0:
                 data = data[:-(data.shape[-1] % args.rate)]
             assert data.shape[-1] % args.rate == 0
-            print(data.shape)
         else:
             raise Exception(f'Unsupported filetype {file_path}')
 
@@ -128,7 +127,7 @@ def main(args):
         if args.output_next_to_orig:
             save_audio(wav.squeeze(), filepath.parent / f'{filepath.stem}_{decoder_ix}.wav', rate=args.rate)
         else:
-            save_audio(wav.squeeze(), args.output / str(decoder_ix) / filepath.with_suffix('.wav').name, rate=args.rate)
+            save_audio(wav.squeeze(), args.output / str(extract_id(args.model)) / str(args.update) / filepath.with_suffix('.wav').name, rate=args.rate)
 
     yy = {}
     with torch.no_grad():
